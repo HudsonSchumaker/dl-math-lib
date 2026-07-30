@@ -248,19 +248,19 @@ All types are carefully aligned for optimal SIMD performance:
 ```
 mathlib/
 ├── include/
-│   └── mathlib.h          # Main header file
+│   └── mathlib.h        # Main header file
 ├── src/
-│   ├── collision.c        # Collision detection
-│   ├── geometry.c         # Geometric operations
-│   ├── lut.c              # Sine/cosine/tangent and reciprocal lookup tables
-│   ├── mat3.c            # 3x3 matrix operations
-│   ├── mat4.c            # 4x4 matrix operations
-│   ├── noise.c            # Noise generation (value, fBm, cellular)
-│   ├── quat.c            # Quaternion operations
-│   ├── vec2.c            # 2D vector operations
-│   └── vec3.c            # 3D vector operations
+│   ├── collision.c     # Collision detection
+│   ├── geometry.c      # Geometric operations
+│   ├── lut.c           # Sine/cosine/tangent and reciprocal lookup tables
+│   ├── mat3.c          # 3x3 matrix operations
+│   ├── mat4.c          # 4x4 matrix operations
+│   ├── noise.c         # Noise generation (value, fBm, cellular)
+│   ├── quat.c          # Quaternion operations
+│   ├── vec2.c          # 2D vector operations
+│   └── vec3.c          # 3D vector operations
 ├── tests/
-│   └── test_mathlib.c    # Comprehensive test suite
+│   └── test_mathlib.c  # Comprehensive test suite
 ├── examples/
 │   └── example_3d_transform.c
 └── Makefile
