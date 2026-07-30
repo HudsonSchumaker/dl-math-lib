@@ -326,6 +326,8 @@ The library includes comprehensive unit tests covering:
 - Quaternion operations and SLERP
 - Collision detection algorithms
 - Utility functions
+- LUT (sine/cosine/tangent table) accuracy and wraparound
+- Reciprocal table values
 - Performance benchmarks
 
 Run tests with:
