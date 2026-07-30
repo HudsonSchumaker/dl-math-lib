@@ -580,6 +580,8 @@ float noise_cellular_2d(float x, float y);
 // ============================================================================
 // LUT for sin, cos, and tan (optional, for performance)
 // ============================================================================
+#define ML_RECIPROCAL_TABLE_SIZE 129  // covers divisors 0..128
+extern float reciprocal_table[ML_RECIPROCAL_TABLE_SIZE];
 
 void build_trigo_tables(void);
 void build_reciprocal_table(void);
