@@ -54,6 +54,12 @@ A blazingly fast, production-ready math library optimized for graphics programmi
 - Ping-pong and fractional operations
 - Nearly-equal comparisons (epsilon testing)
 
+#### Lookup Tables (LUT)
+- Precomputed sine table (`de_sinf`/`de_cosf`/`de_tanf`) for branch-free trig on a fixed index range
+- Degrees-to-index conversion (`degrees_to_index`) for indexing the trig table
+- Precomputed reciprocal table (`reciprocal_table`) for fast `1/i` lookups over small integers
+- Opt-in: tables must be built once at startup before use (see below)
+
 ## Building
 
 ### Requirements
@@ -167,6 +173,42 @@ int main(void) {
 }
 ```
 
+### Lookup Tables (LUT)
+
+Precomputed tables trade a small amount of memory and one-time setup cost for branch-free
+trig and division at runtime. Call the `build_*` functions once during startup (they populate
+static/global tables and are not thread-safe to call concurrently):
+
+```c
+#include <mathlib.h>
+
+int main(void) {
+    // Build once, e.g. at program startup
+    build_trigo_tables();
+    build_reciprocal_table();
+
+    // de_sinf/de_cosf/de_tanf index into a 2048-entry table spanning 0-360 degrees;
+    // convert degrees to a table index first
+    int idx = degrees_to_index(45.0f);
+    float s = de_sinf(idx);
+    float c = de_cosf(idx);
+    float t = de_tanf(idx);
+
+    // reciprocal_table[i] == 1.0f / i for i in [0, 128], with reciprocal_table[0] == 0.0f
+    float inv_8 = reciprocal_table[8];
+
+    return 0;
+}
+```
+
+Notes:
+- `de_sinf`/`de_cosf`/`de_tanf` take an already-converted table **index**, not raw degrees or
+  radians — always go through `degrees_to_index()` (or wrap the index yourself) first.
+- The reciprocal table only covers divisors `0..128`; indexing outside that range is
+  undefined behavior.
+- These tables are an optional, opt-in optimization for hot paths where table lookups beat
+  `sinf`/`cosf`/division — most callers should keep using the regular `vec*`/`ml_*` functions.
+
 ### Compile Your Program
 
 ```bash
@@ -210,8 +252,10 @@ mathlib/
 ├── src/
 │   ├── collision.c        # Collision detection
 │   ├── geometry.c         # Geometric operations
+│   ├── lut.c              # Sine/cosine/tangent and reciprocal lookup tables
 │   ├── mat3.c            # 3x3 matrix operations
 │   ├── mat4.c            # 4x4 matrix operations
+│   ├── noise.c            # Noise generation (value, fBm, cellular)
 │   ├── quat.c            # Quaternion operations
 │   ├── vec2.c            # 2D vector operations
 │   └── vec3.c            # 3D vector operations
@@ -259,6 +303,19 @@ sphere_t  // Sphere (center, radius)
 ray_t     // Ray (origin, direction)
 plane_t   // Plane (normal, distance)
 frustum_t // View frustum (6 planes)
+```
+
+### Lookup Tables (LUT)
+```c
+void build_trigo_tables(void);       // Populate the 2048-entry sine table (call once)
+void build_reciprocal_table(void);   // Populate reciprocal_table[0..128] (call once)
+
+int degrees_to_index(float degrees); // Convert degrees to a sine-table index
+float de_sinf(int index);            // Table lookup, sin(index)
+float de_cosf(int index);            // Table lookup, cos(index)
+float de_tanf(int index);            // Table lookup, tan(index)
+
+extern float reciprocal_table[ML_RECIPROCAL_TABLE_SIZE]; // reciprocal_table[i] == 1.0f / i (i in 0..128)
 ```
 
 ## Testing
