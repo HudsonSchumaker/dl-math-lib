@@ -44,6 +44,7 @@ extern "C" {
 // ============================================================================
 
 #define ML_PI          3.14159265358979323846
+#define ML_2PI         6.28318530717958647692
 #define ML_PI_2        1.57079632679489661923
 #define ML_PI_4        0.78539816339744830962
 #define ML_TAU         6.28318530717958647692
@@ -52,6 +53,20 @@ extern "C" {
 #define ML_EPSILON     1e-6f
 #define ML_DEG2RAD     0.01745329251994329576
 #define ML_RAD2DEG     57.2957795130823208767
+
+#define DIV2   0.5f
+#define DIV3   0.3333333333f
+#define DIV4   0.25f
+#define DIV5   0.2f
+#define DIV6   0.1666666667f
+#define DIV7   0.1428571429f
+#define DIV8   0.125f
+#define DIV9   0.1111111111f
+#define DIV10  0.1f
+#define DIV16  0.0625f
+#define DIV32  0.03125f
+#define DIV64  0.015625f
+#define DIV128 0.0078125f
 
 // ============================================================================
 // 2D Vector (aligned for SIMD)
@@ -560,6 +575,20 @@ float noise_fbm_3d(float x, float y, float z, int octaves, float lacunarity, flo
 float noise_turbulence_2d(float x, float y, int octaves);
 float noise_ridged_2d(float x, float y, int octaves);
 float noise_cellular_2d(float x, float y);
+
+
+// ============================================================================
+// LUT for sin, cos, and tan (optional, for performance)
+// ============================================================================
+
+void build_trigo_tables(void);
+void build_reciprocal_table(void);
+
+int degrees_to_index(float degrees);   
+float de_sinf(int angle);
+float de_cosf(int angle);
+float de_tanf(int angle);
+
 
 #ifdef __cplusplus
 }
