@@ -281,6 +281,60 @@ void test_utilities(void) {
     printf("  ✓ utility tests passed\n");
 }
 
+void test_lut(void) {
+    TEST("lut");
+
+    build_trigo_tables();
+
+    const float lut_epsilon = 0.005f;
+
+    int idx0 = degrees_to_index(0.0f);
+    ASSERT_FLOAT_EQ(de_sinf(idx0), 0.0f);
+    ASSERT_FLOAT_EQ(de_cosf(idx0), 1.0f);
+
+    int idx90 = degrees_to_index(90.0f);
+    assert(fabsf(de_sinf(idx90) - 1.0f) < lut_epsilon);
+    assert(fabsf(de_cosf(idx90) - 0.0f) < lut_epsilon);
+
+    int idx180 = degrees_to_index(180.0f);
+    assert(fabsf(de_sinf(idx180) - 0.0f) < lut_epsilon);
+    assert(fabsf(de_cosf(idx180) - (-1.0f)) < lut_epsilon);
+
+    int idx45 = degrees_to_index(45.0f);
+    assert(fabsf(de_sinf(idx45) - de_cosf(idx45)) < lut_epsilon);
+    assert(fabsf(de_tanf(idx45) - 1.0f) < lut_epsilon);
+
+    // Sweep and compare against libm across a full turn
+    for (float deg = 0.0f; deg < 360.0f; deg += 15.0f) {
+        int idx = degrees_to_index(deg);
+        float rad = deg * ML_DEG2RAD;
+        assert(fabsf(de_sinf(idx) - sinf(rad)) < lut_epsilon);
+        assert(fabsf(de_cosf(idx) - cosf(rad)) < lut_epsilon);
+    }
+
+    // Index wraps around the table instead of reading out of bounds
+    ASSERT_FLOAT_EQ(de_sinf(idx0), de_sinf(idx0 + 2048));
+    ASSERT_FLOAT_EQ(de_cosf(idx0), de_cosf(idx0 + 2048));
+
+    // de_tanf guards the near-vertical asymptote instead of blowing up
+    ASSERT_FLOAT_EQ(de_tanf(idx90), 0.0f);
+
+    printf("  ✓ lut tests passed\n");
+}
+
+void test_reciprocal_table(void) {
+    TEST("reciprocal table");
+
+    build_reciprocal_table();
+
+    ASSERT_FLOAT_EQ(reciprocal_table[0], 0.0f);
+    for (int i = 1; i <= 128; i++) {
+        ASSERT_FLOAT_EQ(reciprocal_table[i], 1.0f / (float)i);
+    }
+
+    printf("  ✓ reciprocal table tests passed\n");
+}
+
 void benchmark_operations(void) {
     TEST("performance benchmark");
 
@@ -331,6 +385,8 @@ int main(void) {
     test_quat();
     test_collision();
     test_utilities();
+    test_lut();
+    test_reciprocal_table();
     benchmark_operations();
 
     printf("\n=================================\n");
